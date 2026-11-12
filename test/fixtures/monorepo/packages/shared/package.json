@@ -1,0 +1,10 @@
+{
+  "name": "@fixture/shared",
+  "private": true,
+  "dependencies": {
+    "@sindresorhus/is": "4.6.0"
+  },
+  "devDependencies": {
+    "is-number": "7.0.0"
+  }
+}

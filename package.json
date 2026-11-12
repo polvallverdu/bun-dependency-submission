@@ -1,0 +1,14 @@
+{
+  "name": "bun-dependency-submission",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "dry-run": "DRY_RUN=true bun src/main.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.11",
+    "typescript": "6.0.3"
+  }
+}

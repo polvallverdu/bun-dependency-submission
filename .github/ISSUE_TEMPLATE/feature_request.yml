@@ -1,0 +1,15 @@
+name: Feature request
+description: Suggest a new input, behavior or setup you'd like supported.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem or repo setup that isn't covered today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like the action to do?

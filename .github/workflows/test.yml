@@ -1,0 +1,96 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun test
+
+  e2e-dry-run:
+    name: E2E · dry runs against the fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # No Bun on the runner yet: the action installs it.
+      - name: Single repo
+        id: single
+        uses: ./
+        with:
+          working-directory: test/fixtures/single-repo
+          dry-run: true
+
+      - name: Assert the single repo's snapshot
+        env:
+          MANIFESTS: ${{ steps.single.outputs.manifests }}
+          PACKAGES: ${{ steps.single.outputs.packages }}
+          FILE: ${{ steps.single.outputs.snapshot-file }}
+          ID: ${{ steps.single.outputs.snapshot-id }}
+        run: |
+          test "$MANIFESTS" = 1
+          test "$PACKAGES" = 3
+          test -z "$ID"
+          jq -e '.manifests["test/fixtures/single-repo/package.json"].resolved["pkg:npm/debug@4.3.4"].dependencies == ["pkg:npm/ms@2.1.2"]' "$FILE"
+
+      - name: Monorepo
+        id: mono
+        uses: ./
+        with:
+          working-directory: test/fixtures/monorepo
+          dry-run: true
+
+      - name: Assert the monorepo's snapshot
+        env:
+          MANIFESTS: ${{ steps.mono.outputs.manifests }}
+          FILE: ${{ steps.mono.outputs.snapshot-file }}
+        run: |
+          test "$MANIFESTS" = 3
+          jq -e '.manifests["test/fixtures/monorepo/apps/web/package.json"].resolved["pkg:npm/debug@2.6.9"].dependencies == ["pkg:npm/ms@2.0.0"]' "$FILE"
+          jq -e '.job.correlator | endswith("test/fixtures/monorepo/bun.lock")' "$FILE"
+
+      - name: Binary lockfile → fails
+        id: binary
+        uses: ./
+        continue-on-error: true
+        with:
+          working-directory: test/fixtures/legacy-binary
+          dry-run: true
+
+      - name: Assert the binary lockfile was refused
+        env:
+          OUTCOME: ${{ steps.binary.outcome }}
+        run: test "$OUTCOME" = failure
+
+  e2e-submit:
+    name: E2E · submit this repo's own bun.lock
+    # Only where the token can write the dependency graph: pushes to main here.
+    if: github.event_name == 'push' && github.repository == 'polvallverdu/bun-dependency-submission'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - id: submit
+        uses: ./
+      - name: Assert GitHub accepted it
+        env:
+          ID: ${{ steps.submit.outputs.snapshot-id }}
+        run: test -n "$ID"

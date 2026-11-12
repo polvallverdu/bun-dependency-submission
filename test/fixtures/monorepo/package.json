@@ -1,0 +1,8 @@
+{
+  "name": "monorepo",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "devDependencies": {
+    "is-number": "7.0.0"
+  }
+}

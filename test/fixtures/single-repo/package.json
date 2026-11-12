@@ -1,0 +1,10 @@
+{
+  "name": "single-repo",
+  "private": true,
+  "dependencies": {
+    "debug": "4.3.4"
+  },
+  "devDependencies": {
+    "@types/ms": "0.7.34"
+  }
+}

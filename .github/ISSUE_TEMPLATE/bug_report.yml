@@ -1,0 +1,39 @@
+name: Bug report
+description: The snapshot is missing packages, has wrong versions, or the action errored.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you expected to see in the dependency graph, and what the action submitted instead.
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow step
+      description: "The `uses: polvallverdu/bun-dependency-submission` step and its inputs."
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: lockfile
+    attributes:
+      label: Lockfile excerpt
+      description: The `workspaces` entry and the `packages` entries involved (from `bun.lock`). Remove anything private.
+      render: jsonc
+  - type: textarea
+    id: log
+    attributes:
+      label: Action log
+      description: "The output of the step. A dry run (`dry-run: true`) writes the full snapshot to the file in the `snapshot-file` output."
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Action version, Bun version, the `lockfileVersion` at the top of bun.lock.
+      placeholder: v1.0.0, Bun 1.4.4, lockfileVersion 3
+    validations:
+      required: true

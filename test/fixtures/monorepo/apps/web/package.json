@@ -1,0 +1,9 @@
+{
+  "name": "@fixture/web",
+  "private": true,
+  "dependencies": {
+    "@fixture/shared": "workspace:*",
+    "debug": "2.6.9",
+    "ms": "2.1.3"
+  }
+}
